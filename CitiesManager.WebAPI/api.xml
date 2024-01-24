@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CitiesManager.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:CitiesManager.WebAPI.Controllers.v1.CitiesController.GetCities">
+            <summary>
+            To get list of cities (including city id and city name) from cities table
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CitiesManager.WebAPI.Controllers.v1.CitiesController.GetCity(System.Guid)">
+            <summary>
+            Get a city based on the provided city id
+            </summary>
+            <param name="id">Unique CityID</param>
+            <returns>City json</returns>
+        </member>
+        <member name="M:CitiesManager.WebAPI.Controllers.v2.CitiesController.GetCities">
+            <summary>
+            To get list of cities (only city name) from cities table
+            </summary>
+            <returns>city names in xml format</returns>
+        </member>
+    </members>
+</doc>
