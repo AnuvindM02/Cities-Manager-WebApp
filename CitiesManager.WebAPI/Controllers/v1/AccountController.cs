@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CitiesManager.WebAPI.Controllers.v1
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [AllowAnonymous]
     [ApiVersion("1.0")]
     public class AccountController : CustomControllerBase
@@ -15,6 +18,12 @@ namespace CitiesManager.WebAPI.Controllers.v1
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="roleManager"></param>
+        /// <param name="signInManager"></param>
         public AccountController(UserManager<ApplicationUser> userManager,RoleManager<ApplicationRole> roleManager,
             SignInManager<ApplicationUser> signInManager)
         {
@@ -23,7 +32,12 @@ namespace CitiesManager.WebAPI.Controllers.v1
             _signInManager = signInManager;
         }
 
-        [HttpPost]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="registerDTO"></param>
+        /// <returns></returns>
+        [HttpPost("register")]
         public async Task<ActionResult<ApplicationUser>> PostRegister(RegisterDTO registerDTO)
         {
             if(!ModelState.IsValid)
@@ -55,7 +69,11 @@ namespace CitiesManager.WebAPI.Controllers.v1
             }
 
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> isEmailAlreadyRegistered(string email)
         {
@@ -71,5 +89,39 @@ namespace CitiesManager.WebAPI.Controllers.v1
             }
         }
 
+
+        [HttpPost("login")]
+        public async Task<IActionResult> PostLogin(LoginDTO loginDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                string errorMessage = string.Join("|", ModelState.Values.SelectMany(err => err.Errors).Select(e => e.ErrorMessage));
+                return Problem(errorMessage);
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(loginDTO.Email, loginDTO.Password,isPersistent:false,lockoutOnFailure:false);
+
+            if(result.Succeeded)
+            {
+                ApplicationUser user = await _userManager.FindByEmailAsync(loginDTO.Email);
+
+                if(user == null)
+                {
+                    return NoContent();
+                }
+                return Ok(new {personName = user.PersonName, email = user.Email});
+            }
+            else
+            {
+                return Problem("Invalid credentials");
+            }
+        }
+
+        [HttpGet("logout")]
+        public async Task<ActionResult<ApplicationUser>> GetLogout(LoginDTO loginDTO)
+        {
+            await _signInManager.SignOutAsync();
+            return NoContent();
+        }
     }
 }

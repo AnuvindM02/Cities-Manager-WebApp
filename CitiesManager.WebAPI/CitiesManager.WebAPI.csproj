@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="AngularClientApp\CitiesApp\src\app\Validator\CustomValidator.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
@@ -23,12 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AngularClientApp\" />
+    <ProjectReference Include="..\CitiesManager.Core\CitiesManager.Core.csproj" />
+    <ProjectReference Include="..\CitiesManager.Infrastructure\CitiesManager.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CitiesManager.Core\CitiesManager.Core.csproj" />
-    <ProjectReference Include="..\CitiesManager.Infrastructure\CitiesManager.Infrastructure.csproj" />
+    <TypeScriptCompile Include="AngularClientApp\CitiesApp\src\app\Validator\CustomValidator.ts" />
   </ItemGroup>
 
 </Project>

@@ -4,6 +4,33 @@
         <name>CitiesManager.WebAPI</name>
     </assembly>
     <members>
+        <member name="T:CitiesManager.WebAPI.Controllers.v1.AccountController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CitiesManager.WebAPI.Controllers.v1.AccountController.#ctor(Microsoft.AspNetCore.Identity.UserManager{CitiesManager.Core.Identity.ApplicationUser},Microsoft.AspNetCore.Identity.RoleManager{CitiesManager.Core.Identity.ApplicationRole},Microsoft.AspNetCore.Identity.SignInManager{CitiesManager.Core.Identity.ApplicationUser})">
+            <summary>
+            
+            </summary>
+            <param name="userManager"></param>
+            <param name="roleManager"></param>
+            <param name="signInManager"></param>
+        </member>
+        <member name="M:CitiesManager.WebAPI.Controllers.v1.AccountController.PostRegister(CitiesManager.Core.DTO.RegisterDTO)">
+            <summary>
+            
+            </summary>
+            <param name="registerDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CitiesManager.WebAPI.Controllers.v1.AccountController.isEmailAlreadyRegistered(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="email"></param>
+            <returns></returns>
+        </member>
         <member name="M:CitiesManager.WebAPI.Controllers.v1.CitiesController.GetCities">
             <summary>
             To get list of cities (including city id and city name) from cities table
