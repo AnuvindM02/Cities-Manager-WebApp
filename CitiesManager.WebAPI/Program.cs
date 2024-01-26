@@ -1,12 +1,20 @@
 using CitiesManager.Core.Entities;
 using CitiesManager.Core.Identity;
+using CitiesManager.Core.ServiceContracts;
+using CitiesManager.Core.Services;
 using CitiesManager.Infrastructure.DatabaseContext;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +24,13 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new ProducesAttribute("application/json"));//Only returns app/json in all responses globally for all action methods
     options.Filters.Add(new ConsumesAttribute("application/json"));//Only accepts app/json in all requests globally for all action methods
+
+    //Authorization policy
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    options.Filters.Add(new AuthorizeFilter(policy));//Authorizes every controller except account controller (it uses allowanonymous)
 }).AddXmlSerializerFormatters();//Xml serializer enabled for getcities action method in cities controller v2
+
+builder.Services.AddTransient<IJwtService, JwtService>();
 
 builder.Services.AddApiVersioning(config =>
 {
@@ -57,7 +71,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policyBuilder =>
     {
         policyBuilder.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>())//Client domain port number from appsettings.json
-        .WithHeaders("Authorization","origin","accept","content-type")//What request headers to accept from client
+        .WithHeaders("Authorization","origin","accept","content-type","mykey")//What request headers to accept from client
         .WithMethods("GET","POST","PUT","DELETE");//What request methods to accept from client
     });
 
@@ -85,6 +99,28 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     .AddDefaultTokenProviders()
     .AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, Guid>>()
     .AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>();
+
+//JWT Authentication
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;//If the above jwt don't work
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddAuthorization(options =>{
+});
 
 var app = builder.Build();
 

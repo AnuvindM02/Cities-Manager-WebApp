@@ -1,5 +1,6 @@
 ﻿using CitiesManager.Core.DTO;
 using CitiesManager.Core.Identity;
+using CitiesManager.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,7 @@ namespace CitiesManager.WebAPI.Controllers.v1
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IJwtService _jwtService;
 
         /// <summary>
         /// 
@@ -25,11 +27,12 @@ namespace CitiesManager.WebAPI.Controllers.v1
         /// <param name="roleManager"></param>
         /// <param name="signInManager"></param>
         public AccountController(UserManager<ApplicationUser> userManager,RoleManager<ApplicationRole> roleManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager, IJwtService jwtService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _jwtService = jwtService;
         }
 
         /// <summary>
@@ -60,7 +63,8 @@ namespace CitiesManager.WebAPI.Controllers.v1
             if(result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                return Ok(user);
+                AuthenticationResponse authenticationResponse = _jwtService.CreateJwtToken(user);
+                return Ok(authenticationResponse);
             }
             else
             {
@@ -109,7 +113,8 @@ namespace CitiesManager.WebAPI.Controllers.v1
                 {
                     return NoContent();
                 }
-                return Ok(new {personName = user.PersonName, email = user.Email});
+                AuthenticationResponse authenticationResponse = _jwtService.CreateJwtToken(user);
+                return Ok(authenticationResponse);
             }
             else
             {
@@ -118,7 +123,7 @@ namespace CitiesManager.WebAPI.Controllers.v1
         }
 
         [HttpGet("logout")]
-        public async Task<ActionResult<ApplicationUser>> GetLogout(LoginDTO loginDTO)
+        public async Task<ActionResult<ApplicationUser>> GetLogout()
         {
             await _signInManager.SignOutAsync();
             return NoContent();
